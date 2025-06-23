@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My First Tic-Tac-Toe Game</title>
+    <style>
+        /* Reset and basic styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        /* Main game container */
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            min-width: 400px;
+        }
+
+        /* Title */
+        .title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Game info section */
+        .game-info {
+            margin-bottom: 30px;
+        }
+
+        .current-player {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .game-status {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            min-height: 30px;
+        }
+
+        /* The game board - 3x3 grid */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            justify-content: center;
+            margin-bottom: 30px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 15px;
+        }
+
+        /* Individual squares */
+        .square {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 10px;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        .square:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.05);
+        }
+
+        .square:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* X and O styling */
+        .x {
+            color: #e74c3c;
+        }
+
+        .o {
+            color: #3498db;
+        }
+
+        /* Buttons */
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .ai-btn {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+        }
+
+        /* Score section */
+        .scores {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-around;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .score {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Mobile friendly */
+        @media (max-width: 480px) {
+            .game-container {
+                min-width: 320px;
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .board {
+                grid-template-columns: repeat(3, 80px);
+                grid-template-rows: repeat(3, 80px);
+            }
+            
+            .square {
+                font-size: 1.5rem;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+        }
+
+        /* Winner highlight */
+        .winner-square {
+            background: rgba(46, 204, 113, 0.8) !important;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="title">🎮 Tic-Tac-Toe</h1>
+        
+        <div class="game-info">
+            <div class="current-player" id="currentPlayer">Player X's Turn</div>
+            <div class="game-status" id="gameStatus">Click any square to start!</div>
+        </div>
+        
+        <!-- The 3x3 game board -->
+        <div class="board" id="board">
+            <button class="square" onclick="makeMove(0)"></button>
+            <button class="square" onclick="makeMove(1)"></button>
+            <button class="square" onclick="makeMove(2)"></button>
+            <button class="square" onclick="makeMove(3)"></button>
+            <button class="square" onclick="makeMove(4)"></button>
+            <button class="square" onclick="makeMove(5)"></button>
+            <button class="square" onclick="makeMove(6)"></button>
+            <button class="square" onclick="makeMove(7)"></button>
+            <button class="square" onclick="makeMove(8)"></button>
+        </div>
+        
+        <div class="controls">
+            <button class="btn reset-btn" onclick="resetGame()">New Game</button>
+            <button class="btn ai-btn" onclick="toggleAI()" id="aiBtn">Play vs AI</button>
+        </div>
+        
+        <!-- Score tracking -->
+        <div class="scores">
+            <div class="score">
+                <div class="score-label">Player X</div>
+                <div class="score-value" id="scoreX">0</div>
+            </div>
+            <div class="score">
+                <div class="score-label">Ties</div>
+                <div class="score-value" id="scoreTie">0</div>
+            </div>
+            <div class="score">
+                <div class="score-label">Player O</div>
+                <div class="score-value" id="scoreO">0</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let board = ['', '', '', '', '', '', '', '', ''];  // Empty board
+        let currentPlayer = 'X';  // X always starts
+        let gameActive = true;    // Is game still going?
+        let vsAI = false;         // Playing against AI?
+        
+        // Score tracking
+        let scores = { X: 0, O: 0, tie: 0 };
+        
+        // Get elements
+        const squares = document.querySelectorAll('.square');
+        const currentPlayerEl = document.getElementById('currentPlayer');
+        const gameStatusEl = document.getElementById('gameStatus');
+        const aiBtn = document.getElementById('aiBtn');
+        const scoreXEl = document.getElementById('scoreX');
+        const scoreOEl = document.getElementById('scoreO');
+        const scoreTieEl = document.getElementById('scoreTie');
+
+        // All possible winning combinations
+        const winPatterns = [
+            [0, 1, 2], // Top row
+            [3, 4, 5], // Middle row
+            [6, 7, 8], // Bottom row
+            [0, 3, 6], // Left column
+            [1, 4, 7], // Middle column
+            [2, 5, 8], // Right column
+            [0, 4, 8], // Diagonal
+            [2, 4, 6]  // Other diagonal
+        ];
+
+        // When player clicks a square
+        function makeMove(index) {
+            // Can't move if game is over or square is taken
+            if (!gameActive || board[index] !== '') {
+                return;
+            }
+            
+            // Make the move
+            board[index] = currentPlayer;
+            squares[index].textContent = currentPlayer;
+            squares[index].classList.add(currentPlayer.toLowerCase());
+            
+            // Check if someone won
+            if (checkWinner()) {
+                gameActive = false;
+                gameStatusEl.textContent = `🎉 Player ${currentPlayer} Wins!`;
+                scores[currentPlayer]++;
+                updateScores();
+                highlightWinner();
+                return;
+            }
+            
+            // Check if it's a tie
+            if (board.every(square => square !== '')) {
+                gameActive = false;
+                gameStatusEl.textContent = "🤝 It's a Tie!";
+                scores.tie++;
+                updateScores();
+                return;
+            }
+            
+            // Switch players
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            currentPlayerEl.textContent = `Player ${currentPlayer}'s Turn`;
+            gameStatusEl.textContent = '';
+            
+            // If playing vs AI and it's O's turn
+            if (vsAI && currentPlayer === 'O' && gameActive) {
+                setTimeout(makeAIMove, 500); // Wait a bit then AI moves
+            }
+        }
+
+        // Check if current player won
+        function checkWinner() {
+            return winPatterns.some(pattern => {
+                const [a, b, c] = pattern;
+                return board[a] && board[a] === board[b] && board[a] === board[c];
+            });
+        }
+
+        // Highlight winning squares
+        function highlightWinner() {
+            winPatterns.forEach(pattern => {
+                const [a, b, c] = pattern;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    squares[a].classList.add('winner-square');
+                    squares[b].classList.add('winner-square');
+                    squares[c].classList.add('winner-square');
+                }
+            });
+        }
+
+        // Simple AI - finds best move
+        function makeAIMove() {
+            if (!gameActive) return;
+            
+            // Try to win first
+            let move = findWinningMove('O');
+            if (move !== -1) {
+                makeMove(move);
+                return;
+            }
+            
+            // Block player from winning
+            move = findWinningMove('X');
+            if (move !== -1) {
+                makeMove(move);
+                return;
+            }
+            
+            // Take center if available
+            if (board[4] === '') {
+                makeMove(4);
+                return;
+            }
+            
+            // Take any corner
+            const corners = [0, 2, 6, 8];
+            const availableCorners = corners.filter(i => board[i] === '');
+            if (availableCorners.length > 0) {
+                const randomCorner = availableCorners[Math.floor(Math.random() * availableCorners.length)];
+                makeMove(randomCorner);
+                return;
+            }
+            
+            // Take any available square
+            const available = board.map((square, index) => square === '' ? index : null).filter(val => val !== null);
+            if (available.length > 0) {
+                const randomMove = available[Math.floor(Math.random() * available.length)];
+                makeMove(randomMove);
+            }
+        }
+
+        // Find if player can win on next move
+        function findWinningMove(player) {
+            for (let pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                const values = [board[a], board[b], board[c]];
+                
+                // Count how many squares this player has in this pattern
+                const playerCount = values.filter(val => val === player).length;
+                const emptyCount = values.filter(val => val === '').length;
+                
+                // If player has 2 and 1 empty, they can win
+                if (playerCount === 2 && emptyCount === 1) {
+                    if (board[a] === '') return a;
+                    if (board[b] === '') return b;
+                    if (board[c] === '') return c;
+                }
+            }
+            return -1; // No winning move found
+        }
+
+        // Reset the game
+        function resetGame() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            gameActive = true;
+            
+            // Clear all squares
+            squares.forEach(square => {
+                square.textContent = '';
+                square.className = 'square';
+            });
+            
+            currentPlayerEl.textContent = "Player X's Turn";
+            gameStatusEl.textContent = 'Click any square to start!';
+        }
+
+        // Toggle AI mode
+        function toggleAI() {
+            vsAI = !vsAI;
+            if (vsAI) {
+                aiBtn.textContent = 'Play vs Human';
+                gameStatusEl.textContent = 'You are X, AI is O';
+            } else {
+                aiBtn.textContent = 'Play vs AI';
+                gameStatusEl.textContent = 'Two player mode';
+            }
+            resetGame();
+        }
+
+        // Update score display
+        function updateScores() {
+            scoreXEl.textContent = scores.X;
+            scoreOEl.textContent = scores.O;
+            scoreTieEl.textContent = scores.tie;
+        }
+
+        // Keyboard shortcut for new game
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                resetGame();
+            }
+        });
+    </script>
+</body>
+</html>
